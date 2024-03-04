@@ -10,7 +10,9 @@ Container base vaultwarden
 
 # TODO : 
 To enable HTTPS access to vaultwarden:  
--> Use a httpd/ngnix Container to do Proxy Pass  
+
+    -> Use a httpd/ngnix Container to do Proxy Pass  
+
     1- Add httpd/ngnix container's config to docker-compose file  
     2- Configure Proxy Pass in httpd/ngnix container in docker compose file  
         User connect https://IP_httpd_Container  
