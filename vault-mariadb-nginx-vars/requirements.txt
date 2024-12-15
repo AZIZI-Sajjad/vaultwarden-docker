@@ -1,0 +1,17 @@
+iputils-ping
+traceroute
+coreutils
+net-tools
+vim
+nano
+curl
+iproute2
+openssh-server
+openssh-client
+sshpass
+netcat-openbsd
+default-mysql-client
+htop
+ncdu
+tcpdump
+mtr

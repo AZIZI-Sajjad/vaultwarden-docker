@@ -1,0 +1,2 @@
+FROM vaultwarden/server:latest
+RUN apt-get update && apt-get install mariadb-client opendkim opendkim-tools -y

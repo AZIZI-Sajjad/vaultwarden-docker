@@ -1,0 +1,200 @@
+# .
+# ├── Dockerfile-mariadb
+# ├── Dockerfile-nginx
+# ├── Dockerfile-vaultwarden
+# ├── certs
+# │   ├── _.mondomaine.fr.crt
+# │   ├── _.mondomaine.fr.key
+# │   ├── chain.pem
+# │   └── fullchain.pem
+# ├── docker-compose.yml
+# ├── init.sql
+# ├── mariadb-data
+# ├── nginx-conf
+# │   ├── default.conf
+# │   ├── includes
+# │   │   ├── proxy.conf
+# │   │   └── ssl.conf
+# │   ├── nginx-ssl.conf
+# │   └── page-not-found.html
+# ├── requirements.txt
+# └── vaultwarden-data
+
+# Containers Vaultwarden & Mariadb & httpd : OK 
+# reste à faire : Proxypass sur le contener nginx
+# apt-get update ; apt-get install iputils-ping iproute2 netcat-openbsd -y
+# cd /var/lib/docker/volumes/
+# rm -rf *
+# docker compose --file /path/to/docker/compose/file/docker-compose.yml --project-name dev-vault-mariadb-nginx-vars up
+# docker compose --file /path/to/docker/compose/file/docker-compose.yml --project-name dev-vault-mariadb-nginx-vars up -d
+# docker compose --file /path/to/docker/compose/file/docker-compose.yml --project-name dev-vault-mariadb-nginx-vars logs -f
+# docker exec -it container-mariadb bash
+# mariadb -u root -p'Y3mwpt5G7xUvUB-ZApuf'
+# SELECT user,host FROM mysql.user;
+
+# GRANT ALL PRIVILEGES ON *.* TO 'root'@'172.64.64.1';
+
+# Réinitialiser le projet: 
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ 
+# Cette une commande qui regroupe toutes les commandes de docker et docker compose qui supprime tous les objets de Docker, ainsi que les fichiers de la base de données de ce projet sur l'hôte
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ 
+# docker compose --file /path/to/docker/compose/file/docker-compose.yml --project-name dev-vault-mariadb-nginx-vars down ; docker images ls ; docker rmi $(docker images -a -q) ; docker rm $(docker ps -a -f status=exited -q) ; docker rm $(docker ps -a -f status=exited -f status=created -q) ; docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q) ; docker system prune -a ; cd /home/sda/docker/docker-compose.d/vault-mariadb-apache-okok/mariadb-data ; rm -rf * ; rm -f .my-healthcheck.cnf
+
+# docker compose --file /path/to/docker/compose/file/docker-compose.yml --project-name dev-vault-mariadb-nginx-vars down
+# docker images ls
+# docker rmi $(docker images -a -q)
+# docker rm $(docker ps -a -f status=exited -q)
+# docker rm $(docker ps -a -f status=exited -f status=created -q)
+# docker stop $(docker ps -a -q)
+# docker rm $(docker ps -a -q)
+# docker system prune -a
+# cd /home/sda/docker/docker-compose.d/vault-mariadb-nginx/mariadb-data/
+# rm -rf *
+# rm -f .my-healthcheck.cnf
+
+
+
+# VaultWarden Admin TOKEN :
+# apt-get install argon2
+
+# Pour Mettre Le TOKEN dans Doubler le fichier docker-compose.yml, il faut Doubler le "$" 
+# echo -n "MySecretPassword" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4 | sed 's#\$#\$\$#g'
+# /!\ Doubler les "$" 
+# Exemple : 
+# $argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
+# Devient :  $$argon2id$$v=19$$m=65540,t=3,p=4$$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
+
+
+# Pour Mettre Le TOKEN dans Doubler le fichier .env, il faut le mettre entre '' 
+# echo -n "MySecretPassword" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4
+# Exemple : 
+# $argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
+# dans le fichier .env :  ADMIN_TOKEN='$argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA'
+
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+# Se connecter à la page Admin (https://ip/admin) avec le mot de passe qui servi à créer le TOKEN, ici c'est "MySecretPassword"
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+
+version: "3.7"
+services:
+  mariadb:
+    # image: "mariadb:latest"
+    build:
+      context: .
+      dockerfile: ${MARIADB_DOKCER_FILE}
+    # image: vault-mariadb-nginx-mariadb
+    env_file:
+    - .env
+    container_name: '${MARIADB_CONTAINER_HOST_NAME}' #"container-mariadb"
+    hostname: '${MARIADB_CONTAINER_HOST_NAME}' #"container-mariadb"
+    restart: always
+    volumes:
+      # - ./my.cnf:/etc/mysql/my.cnf
+      - ./mariadb-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - "mariadb_vol:/var/lib/mysql"
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+    ports:
+     - "3306:3306"
+    networks:
+      net-bridge-nginx-mariadb-vaultwarden:
+        ipv4_address: '${MARIADB_CONTAINER_IP}' # "172.64.64.201"
+
+  vaultwarden:
+      build:
+        context: .
+        dockerfile: ${VAULTWARDEN_DOKCER_FILE}
+      # image: vault-mariadb-nginx-vaultwarden "vaultwarden/server:latest"
+      env_file:
+        - ".env"
+      container_name: '${VAULTWARDEN_CONTAINER_HOST_NAME}' # "container-vaultwarden"
+      hostname: '${VAULTWARDEN_CONTAINER_HOST_NAME}' # "container-vaultwarden"
+      restart: always
+      volumes:
+        - "./vaultwarden-data:/data/"
+      environment:
+        # ## Had issues when using single parentheses around the mysql URL as in the plain docker example
+        # - "DATABASE_URL=mysql://vaultwarden-user:j6dayu5RiruzlSplChiGoV7WRavidut6101@container-mariadb/vaultwarden"
+        # # - "ADMIN_TOKEN=${VAULT_ADMIN_TOKEN}"
+        # - "ADMIN_TOKEN=y0vl0lpuprl5p4Qoc41ez0qltHapr2to"
+        # - "RUST_BACKTRACE=1"
+        # - "SIGNUPS_ALLOWED=true"
+        # - "INVITATIONS_ALLOWED=true"
+      - "DATABASE_URL=mysql://${DB_VAULTWARDEN_USER}:${DB_VAULTWARDEN_USER_PASSWORD}@${MARIADB_CONTAINER_HOST_NAME}/${DB_NAME}"
+      - "RUST_BACKTRACE=${RUST_BACKTRACE}"
+      - "SIGNUPS_ALLOWED=${SIGNUPS_ALLOWED}"
+      - "INVITATIONS_ALLOWED=${INVITATIONS_ALLOWED}"
+      # - VAULT_ADMIN_TOKEN=${ADMIN_TOKEN}
+      - "ADMIN_TOKEN=${ADMIN_TOKEN}"
+      ports:
+        - "8080:80"
+      depends_on:
+        - mariadb
+      networks:
+        net-bridge-nginx-mariadb-vaultwarden:
+          ipv4_address: '${VAULTWARDEN_CONTAINER_IP}' # "172.64.64.202"
+
+  nginx-proxy: 
+    build:
+      # Read DockerFile in Current Folder
+      context: .
+      # Dockerfile's name
+      dockerfile: ${NGINX_DOCKER_FILE}
+      # image: vault-mariadb-nginx-nginx-proxy
+    # Container's name 
+    container_name: '${NGINX_CONTAINER_HOST_NAME}' # container-nginx-proxy
+    # Container's HostName
+    hostname: '${NGINX_CONTAINER_HOST_NAME}' # container-nginx-proxy
+    restart: always
+    env_file:
+    - .env
+    volumes:
+    - "./nginx-conf/default.conf:/etc/nginx/conf.d/default.conf"
+    - "./nginx-conf/page-not-found.html:/var/www/html/page-not-found.html"
+    - "./nginx-conf/includes/:/etc/nginx/includes/"
+    - "./certs/:/etc/ssl/certs/nginx/"
+    depends_on:
+    - vaultwarden
+    # Tag of image created by this srvice
+    # image: nginx-proxy:v1
+    networks:
+      # Container's Network
+      net-macvlan-nginx:
+        # Container's IP
+        ipv4_address: '${NGINX_CONTAINER_IP_MACVLAN}' # "192.168.64.200"
+      # Container's Second Network
+      net-bridge-nginx-mariadb-vaultwarden:
+        # Container's Seconde IP
+        ipv4_address: '${NGINX_CONTAINER_IP}' # "172.64.64.200"
+
+
+
+volumes:
+  mariadb_vol: {}
+  vaultwarden_vol: {}
+  nginx_vol: {}
+
+
+
+networks:
+  net-bridge-nginx-mariadb-vaultwarden:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '${BRIDGE_NETWORK_SUBNET}' # "172.64.64.0/24"
+          gateway: '${BRIDGE_NETWORK_GW}' # "172.64.64.1"
+  
+  net-macvlan-nginx:
+    # name: net-macvlan-nginx
+    driver: macvlan
+    driver_opts: 
+      parent: '${MACVLAN_HOST_PARENT_INTERFACE}' # enp0s3
+    ipam:
+      # driver: default
+      config:
+        - subnet: '${MACVLAN_NETWORK_SUBNET_RANGE}' # "192.168.64.0/24"
+          ip_range: '${MACVLAN_NETWORK_SUBNET_RANGE}' # "192.168.64.0/24"
+          gateway: '${MACVLAN_NETWORK_GW}' # "192.168.64.254"
