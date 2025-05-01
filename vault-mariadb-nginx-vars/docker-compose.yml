@@ -53,24 +53,6 @@
 # rm -f .my-healthcheck.cnf
 
 
-
-# VaultWarden Admin TOKEN :
-# apt-get install argon2
-
-# Pour Mettre Le TOKEN dans Doubler le fichier docker-compose.yml, il faut Doubler le "$" 
-# echo -n "MySecretPassword" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4 | sed 's#\$#\$\$#g'
-# /!\ Doubler les "$" 
-# Exemple : 
-# $argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
-# Devient :  $$argon2id$$v=19$$m=65540,t=3,p=4$$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
-
-
-# Pour Mettre Le TOKEN dans Doubler le fichier .env, il faut le mettre entre '' 
-# echo -n "MySecretPassword" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4
-# Exemple : 
-# $argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA
-# dans le fichier .env :  ADMIN_TOKEN='$argon2id$v=19$m=65540,t=3,p=4$bFhWR3dvV3pwNThydHpXN0RaK2ZyQzZrMzd0VTN6di9VZTBwRkhNcnBpTT0$6zSMFpYonNXztA2aeD7g4vtZ+fZivRpEAoaroDtbgEA'
-
 # /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
 # Se connecter à la page Admin (https://ip/admin) avec le mot de passe qui servi à créer le TOKEN, ici c'est "MySecretPassword"
 # /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
